@@ -26,7 +26,7 @@ def emotion_detector(text_to_analyze: str) -> Dict[str, Any]:
             "dominant_emotion": None,
         }
 
-    response = requests.get(API_URL, params={"text": text_to_analyze}, timeout=10)
+    response = requests.post(API_URL, json={"text": text_to_analyze}, timeout=10)
 
     if response.status_code == 400:
         return {
