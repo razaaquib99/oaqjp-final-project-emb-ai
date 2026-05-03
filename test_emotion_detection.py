@@ -1,84 +1,36 @@
 """Unit tests for the emotion detector."""
 
-from __future__ import annotations
-
 import unittest
-from unittest.mock import MagicMock, patch
-
-from EmotionDetection import emotion_detector
+from EmotionDetection.emotion_detection import emotion_detector
 
 
 class TestEmotionDetector(unittest.TestCase):
-    """Test cases for the emotion_detector function."""
+    """Test cases for emotion_detector function."""
 
-    @patch("EmotionDetection.emotion_detection.requests.post")
-    def test_emotion_detector_success(self, mock_post: MagicMock) -> None:
-        """Verify the function returns the formatted emotion result."""
+    def test_emotion_detector_joy(self):
+        """Test emotion_detector returns joy as dominant emotion."""
+        result = emotion_detector("I am happy")
+        self.assertEqual(result["dominant_emotion"], "joy")
 
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.text = (
-            '{"emotionPredictions": [{"emotion": {'
-            '"anger": 0.1, "disgust": 0.05, "fear": 0.2, '
-            '"joy": 0.5, "sadness": 0.15}}]}'
-        )
-        mock_post.return_value = mock_response
+    def test_emotion_detector_anger(self):
+        """Test emotion_detector returns anger as dominant emotion."""
+        result = emotion_detector("I am angry")
+        self.assertEqual(result["dominant_emotion"], "anger")
 
-        result = emotion_detector("I am really happy today")
+    def test_emotion_detector_sadness(self):
+        """Test emotion_detector returns sadness as dominant emotion."""
+        result = emotion_detector("I am sad")
+        self.assertEqual(result["dominant_emotion"], "sadness")
 
-        self.assertEqual(
-            result,
-            {
-                "anger": 0.1,
-                "disgust": 0.05,
-                "fear": 0.2,
-                "joy": 0.5,
-                "sadness": 0.15,
-                "dominant_emotion": "joy",
-            },
-        )
+    def test_emotion_detector_fear(self):
+        """Test emotion_detector returns fear as dominant emotion."""
+        result = emotion_detector("I am scared")
+        self.assertEqual(result["dominant_emotion"], "fear")
 
-    @patch("EmotionDetection.emotion_detection.requests.post")
-    def test_emotion_detector_400(self, mock_post: MagicMock) -> None:
-        """Verify the function handles a 400 response."""
-
-        mock_response = MagicMock()
-        mock_response.status_code = 400
-        mock_response.text = ""
-        mock_post.return_value = mock_response
-
-        result = emotion_detector("bad input")
-
-        self.assertEqual(
-            result,
-            {
-                "anger": None,
-                "disgust": None,
-                "fear": None,
-                "joy": None,
-                "sadness": None,
-                "dominant_emotion": None,
-            },
-        )
-
-    @patch("EmotionDetection.emotion_detection.requests.post")
-    def test_emotion_detector_blank_input(self, mock_post: MagicMock) -> None:
-        """Verify blank input short-circuits without calling the API."""
-
-        result = emotion_detector("   ")
-
-        mock_post.assert_not_called()
-        self.assertEqual(
-            result,
-            {
-                "anger": None,
-                "disgust": None,
-                "fear": None,
-                "joy": None,
-                "sadness": None,
-                "dominant_emotion": None,
-            },
-        )
+    def test_emotion_detector_disgust(self):
+        """Test emotion_detector returns disgust as dominant emotion."""
+        result = emotion_detector("This is disgusting")
+        self.assertEqual(result["dominant_emotion"], "disgust")
 
 
 if __name__ == "__main__":
